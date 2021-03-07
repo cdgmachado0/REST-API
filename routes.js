@@ -2,11 +2,11 @@ const express = require('express');
 const { User, Course } = require('./models');
 const router = express.Router();
 
-const asyncHandler = require('./async-handler');
-const authenticateUser = require('./auth-user');
+const { asyncHandler } = require('./middleware/async-handler');
+const { authenticateUser } = require('./middleware/auth-user');
 
 
-router.get('/', authenticateUser, asyncHandler((req, res) => {
+router.get('/', authenticateUser, asyncHandler(async (req, res) => {
     const user = req.currentUser
     res.json({
         name: `${user.firstName} ${user.lastName}`,
@@ -17,4 +17,3 @@ router.get('/', authenticateUser, asyncHandler((req, res) => {
 
 module.exports = router;
 
-//getting this first route to work

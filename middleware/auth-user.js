@@ -1,6 +1,6 @@
 const auth = require('basic-auth');
 const bcrypt = require('bcrypt');
-const { User } = require('./models');
+const { User } = require('../models');
 
 exports.authenticateUser = async (req, res, next) => {
     let message;
@@ -23,7 +23,7 @@ exports.authenticateUser = async (req, res, next) => {
         message = 'Auth header not found';
     }
 
-    if (message.length > 0) {
+    if (message && message.length > 0) {
         console.log(message);
         res.status(401).json({ message: 'Access denied'})
     } else {
