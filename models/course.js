@@ -11,8 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     materialsNeeded: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Course',
-    timestamps: false,
+    modelName: 'Course'
   });
 
   Course.associate = (models) => {
