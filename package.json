@@ -11,8 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^1.18.3",
-    "sequelize-cli": "^6.2.0"
+    "nodemon": "^1.18.3"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -21,6 +20,7 @@
     "morgan": "^1.10.0",
     "promise.prototype.finally": "^3.1.2",
     "sequelize": "^6.5.0",
+    "sequelize-cli": "^6.2.0",
     "sqlite3": "^5.0.0"
   }
 }

@@ -53,17 +53,14 @@ app.use((err, req, res, next) => {
 app.set('port', process.env.PORT || 5000);
 
 // start listening on our port
-try {
-  sequelize.authenticate()
-  .then(() => console.log('Connection to database successful'))
+sequelize.sync()
   .then(() => {
     const server = app.listen(app.get('port'), () => {
       console.log(`Express server is listening on port ${server.address().port}`);
     });
   })
-} catch(err) {
-  console.error('Error connecting to the database: ', err);
-}
+  .catch(err => console.error('Error connecting to the database: ', err));
+
 
 
 //trying to get the database to connect
