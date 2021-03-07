@@ -29,5 +29,18 @@ router.post('/', asyncHandler(async (req, res) => {
 }));
 
 
+router.get('/courses', asyncHandler(async (req, res) => {
+    const courses = await Course.findAll({
+        attributes: ['id', 'title'],
+        include: {
+            model: User,
+            as: 'Student',
+            attributes: ['id', 'firstName', 'lastName'],
+        }
+    });
+    res.json({ courses });
+}));
+
+
 module.exports = router;
 
