@@ -15,7 +15,7 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-//JSON requests *********
+//JSON requests
 app.use(express.json());
 
 // setup a friendly greeting for the root route
@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
   });
 });
 
-//API endpoint *********
+//API endpoint
 app.use('/api', routes);
 
 // send 404 if no other route matched
