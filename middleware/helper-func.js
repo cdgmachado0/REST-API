@@ -42,19 +42,31 @@ const authenticateUser = async (req, res, next) => {
     }
 }
 
-const getNextId = async () => {
+const getNextId = async (element) => {
+    let model = element;
     const idsArr = [];
-    const users = await User.findAll();
-    for (let user of users) {
-      const id = user.dataValues.id;
+    const fetchedModels = await model.findAll();
+    for (let model of fetchedModels) {
+      const id = model.dataValues.id;
       idsArr.push(id);
     }
     return Math.max(...idsArr) + 1;
+  }
+
+  const processSequelizeError = (error) => {
+    if (error['name'] === 'SequelizeValidationError' || error['name'] === 'SequelizeUniqueConstraintError') {
+        let errors = error['errors'];
+        errors = errors.map(error => error.message);
+        res.status(401).json({ errors });
+    } else {
+        throw error;
+    }
   }
 
 
   module.exports = {
       asyncHandler,
       authenticateUser,
-      getNextId
+      getNextId,
+      processSequelizeError
   };

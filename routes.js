@@ -5,7 +5,8 @@ const router = express.Router();
 const {
     asyncHandler, 
     authenticateUser, 
-    getNextId
+    getNextId,
+    processSequelizeError
 } = require('./middleware/helper-func');
 
 
@@ -21,28 +22,23 @@ router.get('/', authenticateUser, (req, res) => {
 
 router.post('/', asyncHandler(async (req, res) => {
     try {
-        const nextId = await getNextId();
+        const nextId = await getNextId(User);
         req.body.id = nextId;
         await User.create(req.body);
         res.status(201).end();
     } catch(error) {
-        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-            const errors = error.errors.map(error => error.message);
-            res.status(401).json({ errors });
-        } else {
-            throw error;
-        }
+        processSequelizeError(error);
     }
 }));
 
 
 router.get('/courses', asyncHandler(async (req, res) => {
     const courses = await Course.findAll({
-        attributes: ['id', 'title'],
+        attributes: ['id', 'title', 'description'],
         include: {
             model: User,
             as: 'Student',
-            attributes: ['id', 'firstName', 'lastName', 'description'],
+            attributes: ['id', 'firstName', 'lastName']
         }
     });
     res.json({ courses });
@@ -61,6 +57,19 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
         }
     });
     res.json({ course });
+}));
+
+
+router.post('/courses', asyncHandler(async (req, res) => {
+    try {
+        const nextId = await getNextId(Course);
+        req.body.id = nextId;
+        // req.body.userId = req.body.userId || null;  
+        await Course.create(req.body);
+        res.status(201).end();
+    } catch(error) {
+        processSequelizeError(error);
+    }
 }));
 
 
