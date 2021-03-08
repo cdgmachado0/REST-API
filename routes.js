@@ -5,6 +5,16 @@ const router = express.Router();
 const { asyncHandler } = require('./middleware/async-handler');
 const { authenticateUser } = require('./middleware/auth-user');
 
+async function getNextId() {
+    const idsArr = [];
+    const users = await User.findAll();
+    for (let user of users) {
+      const id = user.dataValues.id;
+      idsArr.push(id);
+    }
+    return Math.max(...idsArr) + 1;
+  }
+
 
 router.get('/', authenticateUser, (req, res) => {
     const user = req.currentUser
@@ -16,6 +26,8 @@ router.get('/', authenticateUser, (req, res) => {
 
 router.post('/', asyncHandler(async (req, res) => {
     try {
+        const nextId = await getNextId();
+        req.body.id = nextId;
         await User.create(req.body);
         res.status(201).end();
     } catch(error) {
