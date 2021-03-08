@@ -2,18 +2,12 @@ const express = require('express');
 const { User, Course } = require('./models');
 const router = express.Router();
 
-const { asyncHandler } = require('./middleware/async-handler');
-const { authenticateUser } = require('./middleware/auth-user');
+const {
+    asyncHandler, 
+    authenticateUser, 
+    getNextId
+} = require('./middleware/helper-func');
 
-async function getNextId() {
-    const idsArr = [];
-    const users = await User.findAll();
-    for (let user of users) {
-      const id = user.dataValues.id;
-      idsArr.push(id);
-    }
-    return Math.max(...idsArr) + 1;
-  }
 
 
 router.get('/', authenticateUser, (req, res) => {

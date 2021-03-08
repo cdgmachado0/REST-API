@@ -2,7 +2,18 @@ const auth = require('basic-auth');
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 
-exports.authenticateUser = async (req, res, next) => {
+
+const asyncHandler = (cb) => {
+    return async (req, res, next) => {
+        try {
+            await cb(req, res, next);
+        } catch(err) {
+            next(err);
+        }
+    }
+}
+
+const authenticateUser = async (req, res, next) => {
     let message;
     const credentials = auth(req);
 
@@ -30,3 +41,20 @@ exports.authenticateUser = async (req, res, next) => {
         next();
     }
 }
+
+const getNextId = async () => {
+    const idsArr = [];
+    const users = await User.findAll();
+    for (let user of users) {
+      const id = user.dataValues.id;
+      idsArr.push(id);
+    }
+    return Math.max(...idsArr) + 1;
+  }
+
+
+  module.exports = {
+      asyncHandler,
+      authenticateUser,
+      getNextId
+  };
