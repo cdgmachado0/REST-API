@@ -18,6 +18,7 @@ router.get('/', authenticateUser, (req, res) => {
     });
 });
 
+
 router.post('/', asyncHandler(async (req, res) => {
     try {
         const nextId = await getNextId();
@@ -41,10 +42,25 @@ router.get('/courses', asyncHandler(async (req, res) => {
         include: {
             model: User,
             as: 'Student',
-            attributes: ['id', 'firstName', 'lastName'],
+            attributes: ['id', 'firstName', 'lastName', 'description'],
         }
     });
     res.json({ courses });
+}));
+
+
+router.get('/courses/:id', asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    const course = await Course.findOne({
+        where: { id },
+        attributes: ['id', 'title', 'description'],
+        include: {
+            model: User,
+            as: 'Student',
+            attributes: ['id', 'firstName', 'lastName']
+        }
+    });
+    res.json({ course });
 }));
 
 
