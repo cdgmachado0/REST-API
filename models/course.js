@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: {
           msg: '"Title" cannot be empty'
         }
-      }
+      },
     },
     description: {
       type: DataTypes.TEXT,
@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: {
           msg: '"Description" cannot be empty'
         }
-      }
+      },
     },
     estimatedTime: DataTypes.STRING,
     materialsNeeded: DataTypes.STRING

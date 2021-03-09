@@ -1,6 +1,7 @@
 const express = require('express');
 const { User, Course } = require('./models');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 
 const {
     asyncHandler, 
@@ -24,6 +25,7 @@ router.post('/users', asyncHandler(async (req, res) => {
     try {
         const nextId = await getNextId(User);
         req.body.id = nextId;
+        req.body.password = bcrypt.hashSync(req.body.password, 10);
         await User.create(req.body);
         res.status(201).location('/').end();
     } catch(error) {
@@ -56,7 +58,11 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
             attributes: ['id', 'firstName', 'lastName']
         }
     });
-    res.json({ course });
+    if (course) {
+        res.json({ course });
+    } else {
+        res.status(400).json({ message: 'Course not found in database' });
+    }
 }));
 
 
@@ -75,20 +81,31 @@ router.post('/courses', asyncHandler(async (req, res) => {
 
 
 router.put('/courses/:id', asyncHandler(async (req, res) => {
-    const course = await Course.findByPk(req.params.id);
-    await course.update(req.body);
-    res.status(204).end();
+    try {
+        const course = await Course.findByPk(req.params.id);
+        if (course) {
+            await course.update(req.body);
+            res.status(204).end();
+        } else {
+            res.status(400).json({ message: 'Course not found in database' });
+        }
+    } catch(error) {
+        processSequelizeError(error, res);
+    }
 }));
 
 
 router.delete('/courses/:id', asyncHandler(async (req, res) => {
     const course = await Course.findByPk(req.params.id);
-    await course.destroy();
-    res.status(204).end();
+    if (course) {
+        await course.destroy();
+        res.status(204).end();
+    } else {
+        res.status(400).json({ message: 'Course not found in database' });
+    }
 }));
 
 module.exports = router;
 
 
-//try the app with the provided tests
 
