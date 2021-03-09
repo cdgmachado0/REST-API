@@ -53,7 +53,7 @@ const getNextId = async (element) => {
     return Math.max(...idsArr) + 1;
   }
 
-  const processSequelizeError = (error) => {
+  const processSequelizeError = (error, res) => {
     if (error['name'] === 'SequelizeValidationError' || error['name'] === 'SequelizeUniqueConstraintError') {
         let errors = error['errors'];
         errors = errors.map(error => error.message);

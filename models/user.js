@@ -29,7 +29,9 @@ module.exports = (sequelize, DataTypes) => {
         msg: '"lastName" cannot be empty'
       },
       validate: {
-        notNull: 'Insert a value for "lastName"'
+        notNull: {
+          msg: 'Insert a value for "lastName"'
+        }
       }
     },
     emailAddress: {
@@ -41,11 +43,11 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notNull: {
           msg: 'Inser a value for "email"'
+        },
+        isEmail: {
+          msg: 'Provide a valid email address'
         }
       },
-      isEmail: {
-        msg: 'Provide a valid email address'
-      }
     },
     password: {
       type: DataTypes.STRING,

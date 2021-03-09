@@ -11,7 +11,7 @@ const {
 
 
 
-router.get('/', authenticateUser, (req, res) => {
+router.get('/users', authenticateUser, (req, res) => {
     const user = req.currentUser
     res.json({
         name: `${user.firstName} ${user.lastName}`,
@@ -20,14 +20,14 @@ router.get('/', authenticateUser, (req, res) => {
 });
 
 
-router.post('/', asyncHandler(async (req, res) => {
+router.post('/users', asyncHandler(async (req, res) => {
     try {
         const nextId = await getNextId(User);
         req.body.id = nextId;
         await User.create(req.body);
-        res.status(201).end();
+        res.status(201).location('/').end();
     } catch(error) {
-        processSequelizeError(error);
+        processSequelizeError(error, res);
     }
 }));
 
@@ -64,14 +64,31 @@ router.post('/courses', asyncHandler(async (req, res) => {
     try {
         const nextId = await getNextId(Course);
         req.body.id = nextId;
-        // req.body.userId = req.body.userId || null;  
         await Course.create(req.body);
-        res.status(201).end();
+        res.status(201).location(`/courses/${nextId}`).end();
     } catch(error) {
-        processSequelizeError(error);
+        console.log(error.name);
+        console.log(error);
+        processSequelizeError(error, res);
     }
 }));
 
 
+router.put('/courses/:id', asyncHandler(async (req, res) => {
+    const course = await Course.findByPk(req.params.id);
+    await course.update(req.body);
+    res.status(204).end();
+}));
+
+
+router.delete('/courses/:id', asyncHandler(async (req, res) => {
+    const course = await Course.findByPk(req.params.id);
+    await course.destroy();
+    res.status(204).end();
+}));
+
 module.exports = router;
+
+
+//try the app with the provided tests
 
