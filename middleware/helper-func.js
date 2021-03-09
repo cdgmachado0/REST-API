@@ -15,18 +15,21 @@ const asyncHandler = (cb) => {
 
 const authenticateUser = async (req, res, next) => {
     async function allowUserUpdateOrDelete(user, next) {
-        const course = await Course.findByPk(req.params.id);
-        const { userId } = course;
-        const possibleUser = await User.findOne({ where: { id: userId } });
-        const checkMethodAndUser = method => req.method === method && possibleUser.dataValues.id !== user.dataValues.id;
+        if (req.params.id) {
+            const course = await Course.findByPk(req.params.id);
+            const { userId } = course;
+            const possibleUser = await User.findOne({ where: { id: userId } });
+            const checkMethodAndUser = method => req.method === method && possibleUser.dataValues.id !== user.dataValues.id;
 
-        if (checkMethodAndUser('PUT') || checkMethodAndUser('DELETE')) {
-            console.log('hi');
-            res.status(403).end();
-            return true;
+            if (checkMethodAndUser('PUT') || checkMethodAndUser('DELETE')) {
+                res.status(403).end();
+                return true;
+            } else {
+                next();
+            }
         } else {
-            next();
-        }
+            res.end(); //the issue here is that it terminates the request and exits the middle, without
+        } //passing by through "authenticated" so "user" ends up as undefined
     }
 
     let message;
@@ -38,6 +41,7 @@ const authenticateUser = async (req, res, next) => {
             if (allowUserUpdateOrDelete(user, next)) {
                 return;
             } else {
+                console.log('hello2');
                 const authenticated = bcrypt.compareSync(credentials.pass, user.password);
                 if (authenticated) {
                     console.log(`Authentication successful for ${user.emailAddress}`);

@@ -13,7 +13,7 @@ const {
 
 
 router.get('/users', authenticateUser, (req, res) => {
-    const user = req.currentUser
+    const user = req.currentUser;
     res.json({
         id: `${user.id}`,
         name: `${user.firstName} ${user.lastName}`,
