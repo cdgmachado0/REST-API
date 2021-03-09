@@ -57,7 +57,7 @@ const getNextId = async (element) => {
     if (error['name'] === 'SequelizeValidationError' || error['name'] === 'SequelizeUniqueConstraintError') {
         let errors = error['errors'];
         errors = errors.map(error => error.message);
-        res.status(401).json({ errors });
+        res.status(400).json({ errors });
     } else {
         throw error;
     }

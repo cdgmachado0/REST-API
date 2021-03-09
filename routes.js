@@ -66,21 +66,19 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 }));
 
 
-router.post('/courses', asyncHandler(async (req, res) => {
+router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
     try {
         const nextId = await getNextId(Course);
         req.body.id = nextId;
         await Course.create(req.body);
         res.status(201).location(`/courses/${nextId}`).end();
     } catch(error) {
-        console.log(error.name);
-        console.log(error);
         processSequelizeError(error, res);
     }
 }));
 
 
-router.put('/courses/:id', asyncHandler(async (req, res) => {
+router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (course) {
@@ -95,7 +93,7 @@ router.put('/courses/:id', asyncHandler(async (req, res) => {
 }));
 
 
-router.delete('/courses/:id', asyncHandler(async (req, res) => {
+router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
     const course = await Course.findByPk(req.params.id);
     if (course) {
         await course.destroy();
