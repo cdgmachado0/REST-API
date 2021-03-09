@@ -15,6 +15,7 @@ const {
 router.get('/users', authenticateUser, (req, res) => {
     const user = req.currentUser
     res.json({
+        id: `${user.id}`,
         name: `${user.firstName} ${user.lastName}`,
         email: user.emailAddress
     });
@@ -36,7 +37,7 @@ router.post('/users', asyncHandler(async (req, res) => {
 
 router.get('/courses', asyncHandler(async (req, res) => {
     const courses = await Course.findAll({
-        attributes: ['id', 'title', 'description'],
+        attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded'],
         include: {
             model: User,
             as: 'Student',
@@ -51,7 +52,7 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
     const id = req.params.id;
     const course = await Course.findOne({
         where: { id },
-        attributes: ['id', 'title', 'description'],
+        attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded'],
         include: {
             model: User,
             as: 'Student',

@@ -1,6 +1,6 @@
 const auth = require('basic-auth');
 const bcrypt = require('bcrypt');
-const { User } = require('../models');
+const { User, Course } = require('../models');
 
 
 const asyncHandler = (cb) => {
@@ -14,19 +14,38 @@ const asyncHandler = (cb) => {
 }
 
 const authenticateUser = async (req, res, next) => {
+    async function allowUserUpdateOrDelete(user, next) {
+        const course = await Course.findByPk(req.params.id);
+        const { userId } = course;
+        const possibleUser = await User.findOne({ where: { id: userId } });
+        const checkMethodAndUser = method => req.method === method && possibleUser.dataValues.id !== user.dataValues.id;
+
+        if (checkMethodAndUser('PUT') || checkMethodAndUser('DELETE')) {
+            console.log('hi');
+            res.status(403).end();
+            return true;
+        } else {
+            next();
+        }
+    }
+
     let message;
     const credentials = auth(req);
 
     if (credentials) {
         const user = await User.findOne({ where: { emailAddress: credentials.name }});
         if (user) {
-            const authenticated = bcrypt.compareSync(credentials.pass, user.password);
-            if (authenticated) {
-                console.log(`Authentication successful for ${user.emailAddress}`);
-                req.currentUser = user;
+            if (allowUserUpdateOrDelete(user, next)) {
+                return;
             } else {
-                message = `Incorrect password for ${credentials.name}`;
-            }
+                const authenticated = bcrypt.compareSync(credentials.pass, user.password);
+                if (authenticated) {
+                    console.log(`Authentication successful for ${user.emailAddress}`);
+                    req.currentUser = user;
+                } else {
+                    message = `Incorrect password for ${credentials.name}`;
+                }
+            }  
         } else {
             message = `User not found: ${credentials.name}`;
         }
@@ -35,7 +54,6 @@ const authenticateUser = async (req, res, next) => {
     }
 
     if (message && message.length > 0) {
-        console.log(message);
         res.status(401).json({ message: 'Access denied'})
     } else {
         next();

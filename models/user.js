@@ -53,11 +53,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         notEmpty: {
           msg: '"Password" cannot be empty'
-        },
-        // len: {
-        //   args: [5,20],
-        //   msg: 'The password must be between 5 to 20 characters long'
-        // }
+        }
       }
     }
   }, {
