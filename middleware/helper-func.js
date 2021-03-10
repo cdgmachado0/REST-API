@@ -13,43 +13,37 @@ const asyncHandler = (cb) => {
     }
 }
 
-const authenticateUser = async (req, res, next) => {
-    async function allowUserUpdateOrDelete(user, next) {
-        if (req.params.id) {
-            const course = await Course.findByPk(req.params.id);
-            const { userId } = course;
-            const possibleUser = await User.findOne({ where: { id: userId } });
-            const checkMethodAndUser = method => req.method === method && possibleUser.dataValues.id !== user.dataValues.id;
 
-            if (checkMethodAndUser('PUT') || checkMethodAndUser('DELETE')) {
-                res.status(403).end();
-                return true;
-            } else {
-                next();
-            }
-        } else {
-            res.end(); //the issue here is that it terminates the request and exits the middle, without
-        } //passing by through "authenticated" so "user" ends up as undefined
+const isOwner = async (req, res, next) => {
+    const credentials = auth(req);
+    const course = await Course.findByPk(req.params.id);
+    const { userId } = course;
+    const possibleUser = await User.findOne({ where: { id: userId } });
+    const compareUsers = () => possibleUser.dataValues.emailAddress === credentials.name ? true : false;
+
+    if (compareUsers()) {
+        next();
+    } else {
+        res.status(403).end();
     }
+}
 
+
+
+const authenticateUser = async (req, res, next) => {
     let message;
     const credentials = auth(req);
 
     if (credentials) {
         const user = await User.findOne({ where: { emailAddress: credentials.name }});
         if (user) {
-            if (allowUserUpdateOrDelete(user, next)) {
-                return;
+            const authenticated = bcrypt.compareSync(credentials.pass, user.password);
+            if (authenticated) {
+                console.log(`Authentication successful for ${user.emailAddress}`);
+                req.currentUser = user;
             } else {
-                console.log('hello2');
-                const authenticated = bcrypt.compareSync(credentials.pass, user.password);
-                if (authenticated) {
-                    console.log(`Authentication successful for ${user.emailAddress}`);
-                    req.currentUser = user;
-                } else {
-                    message = `Incorrect password for ${credentials.name}`;
-                }
-            }  
+                message = `Incorrect password for ${credentials.name}`;
+            }
         } else {
             message = `User not found: ${credentials.name}`;
         }
@@ -90,5 +84,6 @@ const getNextId = async (element) => {
       asyncHandler,
       authenticateUser,
       getNextId,
-      processSequelizeError
+      processSequelizeError,
+      isOwner
   };

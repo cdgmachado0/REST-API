@@ -7,7 +7,8 @@ const {
     asyncHandler, 
     authenticateUser, 
     getNextId,
-    processSequelizeError
+    processSequelizeError,
+    isOwner
 } = require('./middleware/helper-func');
 
 
@@ -79,7 +80,7 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
 }));
 
 
-router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+router.put('/courses/:id', isOwner, authenticateUser, asyncHandler(async (req, res) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (course) {
@@ -94,7 +95,7 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
 }));
 
 
-router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+router.delete('/courses/:id', isOwner, authenticateUser, asyncHandler(async (req, res) => {
     const course = await Course.findByPk(req.params.id);
     if (course) {
         await course.destroy();
