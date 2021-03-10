@@ -27,7 +27,10 @@ router.post('/users', asyncHandler(async (req, res) => {
     try {
         const nextId = await getNextId(User);
         req.body.id = nextId;
-        req.body.password = bcrypt.hashSync(req.body.password, 10);
+        const password = req.body.password;
+        if (password) {
+            req.body.password = bcrypt.hashSync(password, 10);
+        }
         await User.create(req.body);
         res.status(201).location('/').end();
     } catch(error) {
@@ -83,12 +86,8 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
 router.put('/courses/:id', isOwner, authenticateUser, asyncHandler(async (req, res) => {
     try {
         const course = await Course.findByPk(req.params.id);
-        if (course) {
-            await course.update(req.body);
-            res.status(204).end();
-        } else {
-            res.status(400).json({ message: 'Course not found in database' });
-        }
+        await course.update(req.body);
+        res.status(204).end();
     } catch(error) {
         processSequelizeError(error, res);
     }
@@ -97,12 +96,8 @@ router.put('/courses/:id', isOwner, authenticateUser, asyncHandler(async (req, r
 
 router.delete('/courses/:id', isOwner, authenticateUser, asyncHandler(async (req, res) => {
     const course = await Course.findByPk(req.params.id);
-    if (course) {
-        await course.destroy();
-        res.status(204).end();
-    } else {
-        res.status(400).json({ message: 'Course not found in database' });
-    }
+    await course.destroy();
+    res.status(204).end();
 }));
 
 module.exports = router;

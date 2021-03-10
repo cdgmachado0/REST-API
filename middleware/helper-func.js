@@ -17,14 +17,18 @@ const asyncHandler = (cb) => {
 const isOwner = async (req, res, next) => {
     const credentials = auth(req);
     const course = await Course.findByPk(req.params.id);
-    const { userId } = course;
-    const possibleUser = await User.findOne({ where: { id: userId } });
-    const compareUsers = () => possibleUser.dataValues.emailAddress === credentials.name ? true : false;
-
-    if (compareUsers()) {
-        next();
+    if (course) {
+        const { userId } = course;
+        const possibleUser = await User.findOne({ where: { id: userId } });
+        const userEmail = credentials ? credentials.name : '';
+        const compareUsers = () => possibleUser.dataValues.emailAddress === userEmail ? true : false;
+        if (compareUsers()) {
+            next();
+        } else {
+            res.status(403).end();
+        }
     } else {
-        res.status(403).end();
+        res.status(400).json({ message: 'Course not found in database' });
     }
 }
 
