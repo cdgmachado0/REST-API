@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const { User, Course } = require('../models');
 
 
+//Handles async errors
 const asyncHandler = (cb) => {
     return async (req, res, next) => {
         try {
@@ -13,7 +14,7 @@ const asyncHandler = (cb) => {
     }
 }
 
-
+//Checks if the owner of the course is the one calling the route
 const isOwner = async (req, res, next) => {
     const credentials = auth(req);
     const course = await Course.findByPk(req.params.id);
@@ -21,6 +22,7 @@ const isOwner = async (req, res, next) => {
         const { userId } = course;
         const possibleUser = await User.findOne({ where: { id: userId } });
         const userEmail = credentials ? credentials.name : '';
+        //Compares the owner of the course with the user calling the route
         const compareUsers = () => possibleUser.dataValues.emailAddress === userEmail ? true : false;
         if (compareUsers()) {
             next();
@@ -32,8 +34,7 @@ const isOwner = async (req, res, next) => {
     }
 }
 
-
-
+//Authenticates the user calling the route through their log-in credentials
 const authenticateUser = async (req, res, next) => {
     let message;
     const credentials = auth(req);
@@ -62,6 +63,7 @@ const authenticateUser = async (req, res, next) => {
     }
 }
 
+//Adds the following ID in the queue to the model that is being created
 const getNextId = async (element) => {
     let model = element;
     const idsArr = [];
@@ -73,15 +75,16 @@ const getNextId = async (element) => {
     return Math.max(...idsArr) + 1;
   }
 
-  const processSequelizeError = (error, res) => {
-    if (error['name'] === 'SequelizeValidationError' || error['name'] === 'SequelizeUniqueConstraintError') {
-        let errors = error['errors'];
-        errors = errors.map(error => error.message);
-        res.status(400).json({ errors });
-    } else {
-        throw error;
-    }
-  }
+//Process Sequelize's validation and constraint errors
+const processSequelizeError = (error, res) => {
+if (error['name'] === 'SequelizeValidationError' || error['name'] === 'SequelizeUniqueConstraintError') {
+    let errors = error['errors'];
+    errors = errors.map(error => error.message);
+    res.status(400).json({ errors });
+} else {
+    throw error;
+}
+}
 
 
   module.exports = {
