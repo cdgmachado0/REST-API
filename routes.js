@@ -84,7 +84,7 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
 }));
 
 //Updates an existing course
-router.put('/courses/:id', isOwner, authenticateUser, asyncHandler(async (req, res) => {
+router.put('/courses/:id', authenticateUser, isOwner, asyncHandler(async (req, res) => {
     try {
         const course = await Course.findByPk(req.params.id);
         await course.update(req.body);
@@ -95,7 +95,7 @@ router.put('/courses/:id', isOwner, authenticateUser, asyncHandler(async (req, r
 }));
 
 //Deletes an existing course
-router.delete('/courses/:id', isOwner, authenticateUser, asyncHandler(async (req, res) => {
+router.delete('/courses/:id', authenticateUser, isOwner, asyncHandler(async (req, res) => {
     const course = await Course.findByPk(req.params.id);
     await course.destroy();
     res.status(204).end();
